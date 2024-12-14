@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -41,6 +42,13 @@ class ChirpController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        
+        $utilisateur = Auth::user();
+
+        if ($utilisateur->chirps->count() >= 10) {
+            return redirect()->back()->withErrors(['message' => 'Vous avez atteint le nombre maximum de chirps.']);
+        }
+
         $validated = $request->validate([
             'message' => 'required|string|max:255',
         ]);

@@ -132,23 +132,40 @@ class ChirpTest extends TestCase
 
             // /**Exercice7 */
 
-            public function test_validation_lors_de_la_mise_a_jour_d_un_chirp()
-            {
-                $utilisateur = User::factory()->create();
-                $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+    public function test_validation_lors_de_la_mise_a_jour_d_un_chirp()
+    {
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
                 
-                $this->actingAs($utilisateur);
+        $this->actingAs($utilisateur);
                 
-                $reponse = $this->put("/chirps/{$chirp->id}", [
-                    'message' => ''
-                ]);
-                $reponse->assertSessionHasErrors('message');
+        $reponse = $this->put("/chirps/{$chirp->id}", [
+        'message' => ''
+        ]);
+        $reponse->assertSessionHasErrors('message');
                 
-                $reponse = $this->put("/chirps/{$chirp->id}", [
-                    'message' => str_repeat('A', 256) 
-                ]);
-                $reponse->assertSessionHasErrors('message');
-            }
-            
+        $reponse = $this->put("/chirps/{$chirp->id}", [
+        'message' => str_repeat('A', 256) 
+    ]);
+       $reponse->assertSessionHasErrors('message');
+    }
+
+                // /**Exercice8 */
+
+    public function test_utilisateur_limite_a_10_chirps()
+    {
+        
+        $utilisateur = User::factory()->create();
+        $this->actingAs($utilisateur);
+
+        for ($i = 0; $i < 10; $i++) {
+            Chirp::factory()->create(['user_id' => $utilisateur->id]);
+        }
+    
+        $reponse = $this->post('/chirps', ['message' => 'Un autre chirp']);
+        $reponse->assertSessionHasErrors('message');
+        $reponse->assertStatus(302);
+    }
+ 
 
 }
