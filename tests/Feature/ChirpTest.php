@@ -111,5 +111,25 @@ class ChirpTest extends TestCase
     }
 
 
+    public function test_utilisateur_ne_peut_pas_modifier_ou_supprimer_le_chirp_d_un_autre_utilisateur()
+    {
+    $utilisateur1 = User::factory()->create();
+    $chirp1 = Chirp::factory()->create(['user_id' => $utilisateur1->id]);
+    
+    $utilisateur2 = User::factory()->create();
+    
+    $this->actingAs($utilisateur2);
+    
+    $reponse = $this->delete("/chirps/{$chirp1->id}");
+    $reponse->assertStatus(403);
+    
+    $reponse = $this->put("/chirps/{$chirp1->id}", [
+        'message' => 'Nouveau message'
+    ]);
+    $reponse->assertStatus(403);
+}
+
+
+
 
 }
