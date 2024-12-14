@@ -110,26 +110,45 @@ class ChirpTest extends TestCase
         ]);
     }
 
+            // /**Exercice6 */
 
     public function test_utilisateur_ne_peut_pas_modifier_ou_supprimer_le_chirp_d_un_autre_utilisateur()
     {
-    $utilisateur1 = User::factory()->create();
-    $chirp1 = Chirp::factory()->create(['user_id' => $utilisateur1->id]);
-    
-    $utilisateur2 = User::factory()->create();
-    
-    $this->actingAs($utilisateur2);
-    
-    $reponse = $this->delete("/chirps/{$chirp1->id}");
-    $reponse->assertStatus(403);
-    
-    $reponse = $this->put("/chirps/{$chirp1->id}", [
-        'message' => 'Nouveau message'
-    ]);
-    $reponse->assertStatus(403);
-}
+        $utilisateur1 = User::factory()->create();
+        $chirp1 = Chirp::factory()->create(['user_id' => $utilisateur1->id]);
+        
+        $utilisateur2 = User::factory()->create();
+        
+        $this->actingAs($utilisateur2);
+        
+        $reponse = $this->delete("/chirps/{$chirp1->id}");
+        $reponse->assertStatus(403);
+        
+        $reponse = $this->put("/chirps/{$chirp1->id}", [
+            'message' => 'Nouveau message'
+        ]);
+        $reponse->assertStatus(403);
+    }
 
+            // /**Exercice7 */
 
-
+            public function test_validation_lors_de_la_mise_a_jour_d_un_chirp()
+            {
+                $utilisateur = User::factory()->create();
+                $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+                
+                $this->actingAs($utilisateur);
+                
+                $reponse = $this->put("/chirps/{$chirp->id}", [
+                    'message' => ''
+                ]);
+                $reponse->assertSessionHasErrors('message');
+                
+                $reponse = $this->put("/chirps/{$chirp->id}", [
+                    'message' => str_repeat('A', 256) 
+                ]);
+                $reponse->assertSessionHasErrors('message');
+            }
+            
 
 }
