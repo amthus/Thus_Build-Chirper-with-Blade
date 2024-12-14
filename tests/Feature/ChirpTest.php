@@ -75,6 +75,8 @@ class ChirpTest extends TestCase
     //     }
     // }
 
+    // /**Exercice4 */
+
     public function test_un_utilisateur_peut_modifier_son_chirp()
     {
         $utilisateur = User::factory()->create();
@@ -91,6 +93,20 @@ class ChirpTest extends TestCase
         $this->assertDatabaseHas('chirps', [
             'id' => $chirp->id,
             'message' => $nouveauContenu,
+        ]);
+    }
+
+
+        // /**Exercice5 */
+    public function test_un_utilisateur_peut_supprimer_son_chirp()
+    {
+        $utilisateur = User::factory()->create();
+        $chirp = Chirp::factory()->create(['user_id' => $utilisateur->id]);
+        $this->actingAs($utilisateur);
+        $reponse = $this->delete("/chirps/{$chirp->id}");
+        $reponse->assertStatus(302);
+        $this->assertDatabaseMissing('chirps', [
+            'id' => $chirp->id,
         ]);
     }
 
